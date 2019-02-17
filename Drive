@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>NASCAR Cams</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <style type="text/css">
+            body {
+                color: #FFFFFF;
+                background-color: #282828;
+            }
+        #comparision-table {
+            border: solid 1px #DDEEEE;
+            border-collapse: collapse;
+            border-spacing: 0;
+            font: bold 13px Arial, sans-serif;
+            width: 90%;
+        }
+        #comparision-table tr {
+            background-color: #878787;
+            border: solid 1px #000000;
+            color: #333333;
+            padding: 10px;
+            text-align: left;
+        }
+        #comparision-table td {
+            border: solid 1px #000000;
+            color: #333;
+            padding: 10px;
+            width: 33%;
+            text-align: center;
+        }
+        video {
+            width: 600px;
+            height: auto;
+        }
+        </style>
+        <script>
+            var myObj, i, j, x = "";
+            var xmlhttp = new XMLHttpRequest();
+            
+            xmlhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    var myObj = JSON.parse(this.responseText);
+                    
+                    for (i in myObj.data.videos) {
+                        
+                        //Probably not more than 3 rows of cameras (9)
+                        if (i == 0 || (i%3) == 0){
+                            x+='<tr>';
+                        }
+                        
+                        //If there is something in the title it isn't a driver cam
+                        if (myObj.data.videos[i].title){
+                            x += '<td>' + myObj.data.videos[i].title + '<br /><video controls autoplay muted><source src="' + myObj.data.videos[i].sources[0].URL + '" " type="application/x-mpegURL"> </td>';
+                        }
+                        else {
+                            x += '<td>#' + myObj.data.videos[i].vehicleNumber + ' ' + myObj.data.videos[i].firstName + ' ' + myObj.data.videos[i].lastName + '<br /><video controls autoplay muted><source src="' + myObj.data.videos[i].sources[0].URL + '" " type="application/x-mpegURL"> </td>';
+                        }
+                        
+                        //Probably not more than 3 rows of cameras (9)
+                        if (i == 2 || (i%3) == 2){
+                            x+='</tr>';
+                        }
+                        
+                    }
+                    document.getElementById("comparision-table").innerHTML = x;
+                }
+            };
+        
+        xmlhttp.open("GET", "https://www.nascar.com/drive/configs.json", true);
+        xmlhttp.send();
+        
+        
+        //Driver scanners
+        var series = "";
+        
+        function getDriverRadios(url) {
+            $.getJSON(url, function(data) {
+                      var items = $();
+                      $.each(data.audio_config, function(key, val) {
+                             items = items.add( "<option value='" + val.base_url + "" + val.stream_ios + "'>#" + val.driver_number + " " + val.driver_name + "</option>" );
+                             });
+                      
+                      $('.drivers').append(items);
+                      
+                      });
+        }
+        
+        $(document).ready(function(){
+                          
+                          getDriverRadios($(".series option:selected").val());
+                          
+                          $('#driver_scanner').attr('src',$(".drivers").val());
+                          $(".drivers").change(function(){
+                                               $('#driver_scanner').attr('src',$(this).val());
+                                               $("#driver_scanner_video video")[0].load();
+                                               });
+                          
+                          $(".series").change(function(){
+                                              $('.drivers').find('option').remove().end().append('<option value="">-Select Driver-</option>');
+                                              getDriverRadios($(this).val());
+                                              });
+                          
+                          });
+                          
+            </script>
+    </head>
+    
+    <body>
+        <h1>NASCAR In-Car Cams</h1>
+        
+        <b>Select series for radio</b>
+        <select class="series">
+            <option value="https://www.nascar.com/config/audio/audio_mapping_1_3.json">Monster Energy Series</option>
+            <option value="https://www.nascar.com/config/audio/audio_mapping_2_3.json">Xfinity Series</option>
+            <option value="https://www.nascar.com/config/audio/audio_mapping_3_3.json">Gander Outdoors Series</option>
+        </select>
+        <br />
+        <b>Driver scanners</b>
+        <select class="drivers">
+            <option value="">-Select Driver-</option>
+        </select>
+        <br />
+        <div id="driver_scanner_video">
+            <video height="50" width="200" controls autoplay><source id="driver_scanner" src="" type="application/x-mpegURL"></video>
+        </div>
+        
+        <br /><br />
+        
+        <table id="comparision-table">
+        </table>
+        
+    </body>
+</html>
