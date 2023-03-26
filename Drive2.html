@@ -1,3 +1,4 @@
+
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
     <head>
@@ -41,33 +42,45 @@
             xmlhttp.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
                     var myObj = JSON.parse(this.responseText);
+					
+					//console.log(myObj.data[0]);
                     
-                    for (i in myObj.data.videos) {
+                    for (i in myObj.data[0].videos) {
                         
                         //Probably not more than 3 rows of cameras (9)
                         if (i == 0 || (i%3) == 0){
                             x+='<tr>';
                         }
-                        
-                        //If there is something in the title it isn't a driver cam
-                        if (myObj.data.videos[i].title){
-                            x += '<td>' + myObj.data.videos[i].title + '<br /><video controls autoplay muted><source src="' + myObj.data.videos[i].sources[0].URL + '" " type="application/x-mpegURL"> </td>';
-                        }
-                        else {
-                            x += '<td>#' + myObj.data.videos[i].vehicleNumber + ' ' + myObj.data.videos[i].firstName + ' ' + myObj.data.videos[i].lastName + '<br /><video controls autoplay muted><source src="' + myObj.data.videos[i].sources[0].URL + '" " type="application/x-mpegURL"> </td>';
-                        }
-                        
+							x += '<td><img src="' + myObj.data[0].videos[i].driverManu + '" /> ' + myObj.data[0].videos[i].title + '<br /><video controls autoplay muted><source src="' + myObj.data[0].videos[i].stream1 + '" " type="application/x-mpegURL"> </td>';
+
                         //Probably not more than 3 rows of cameras (9)
                         if (i == 2 || (i%3) == 2){
                             x+='</tr>';
                         }
                         
                     }
+					
+		    /*for (i in myObj.data[1].videos) {
+                        
+                        //Probably not more than 3 rows of cameras (9)
+                        if (i == 0 || (i%3) == 0){
+                            x+='<tr>';
+                        }
+							x += '<td>' + myObj.data[1].videos[i].title + '<br /><video controls autoplay muted><source src="' + myObj.data[1].videos[i].stream1 + '" " type="application/x-mpegURL"> </td>';
+
+                        //Probably not more than 3 rows of cameras (9)
+                        if (i == 2 || (i%3) == 2){
+                            x+='</tr>';
+                        }
+                        
+                    }*/
+					
                     document.getElementById("comparision-table").innerHTML = x;
                 }
             };
         
-        xmlhttp.open("GET", "https://www.nascar.com/drive/configs.json", true);
+		//xmlHttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+        xmlhttp.open("GET", "https://cf.nascar.com/drive/1/configs-ng.json", true);
         xmlhttp.send();
         
         
@@ -111,9 +124,9 @@
         
         <b>Select series for radio</b>
         <select class="series">
-            <option value="https://www.nascar.com/config/audio/audio_mapping_1_3.json">Monster Energy Series</option>
-            <option value="https://www.nascar.com/config/audio/audio_mapping_2_3.json">Xfinity Series</option>
-            <option value="https://www.nascar.com/config/audio/audio_mapping_3_3.json">Gander Outdoors Series</option>
+            <option value="https://cf.nascar.com/config/audio/audio_mapping_1_3.json">Monster Energy Series</option>
+            <option value="https://cf.nascar.com/config/audio/audio_mapping_2_3.json">Xfinity Series</option>
+            <option value="https://cf.nascar.com/config/audio/audio_mapping_3_3.json">Gander Outdoors Series</option>
         </select>
         <br />
         <b>Driver scanners</b>
